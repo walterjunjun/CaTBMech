@@ -1,0 +1,63 @@
+// conclusion: best algorithm in terms of accuracy and efficiency:
+mpiexec -np 4 ./test1_implicit -ksp_type cg -pc jacobi -ksp_converged_reason > jacob.log
+mpiexec -np 4 ./test1_implicit -ksp_type cg -pc sor -ksp_converged_reason > sor.log
+
+mpiexec -np 4 ./test1_implicit testMesh_part0.xda -pc_type jacobi
+
+
+
+0) is numerical issue? use direct solver, single processor
+./test1_implicit testMesh_part0.xda -pc_type lu
+// -pc_type lu --> use direct solver;
+
+
+
+
+1) purpose: what is the best KSP_type for my application?
+-ksp_type <gmres>: Krylov method (one of) cg cgne nash stcg gltr richardson chebyshev gmres
+      tcqmr bcgs ibcgs fbcgs ifbcgs bcgsl cgs tfqmr cr lsqr preonly qcg bicg fgmres minres symmlq lgmres lcd gcr pgmres specest dgmres (KSPSetType)
+
+
+test parameter:
+mpiexec -np 4 ./test1_implicit testMesh_part0.xda -ksp_type <cg>
+
+GMRES: restart=30, using Classical (unmodified) Gram-Schmidt Orthogonalization with no iterative refinement
+    GMRES: happy breakdown tolerance 1e-30
+  maximum iterations=250
+  tolerances:  relative=1e-08, absolute=1e-50, divergence=10000
+  left preconditioning
+  type: bjacobi
+  PC Object:  (sub_)
+// 2) Cases; Linear solver converged at step: 10, final residual: 693.531  
+
+gmres	final residual: 0.0164061
+
+cg	final residual: 64.6918
+cgne	final residual: 1.71385e+08 
+
+bcgs	final residual: 1.73994
+
+
+mpiexec -np 4 ./test1_implicit testMesh_part0.xda -ksp_type minres
+final residual: 2.23317e+06
+
+mpiexec -np 4 ./test1_implicit testMesh_part0.xda -ksp_type lcd
+final residual: 1.54451
+
+mpiexec -np 4 ./test1_implicit testMesh_part0.xda -ksp_type fgmres -pc_type ksp -ksp_ksp_type bcgs -ksp_view -ksp_pc_type jacobi  
+step: 4,final residual: 7.34014e-14 
+
+mpiexec -np 4 ./test1_implicit testMesh_part0.xda -pc_type jacobi
+3053, final residual: 3.78817e-11 (***fast as the default)
+//2.1) try use hyper, multigrid method
+
+mpiexec -np 4 ./test1_implicit testMesh_part0.xda -pc_type hypre -pc_hypre_type boomeramg
+begin solve: iteration #10
+assemble: loading fraction: =0.02
+Linear solver converged at step: 10, final residual: 8.26525e-07  Nonlinear convergence: ||delta U|| = 27.23
+--> this is slow, compared with -pc_type jacobi
+
+mpiexec -np 4 ./test1_implicit testMesh_part0.xda  -snes_mf_operator -pc_type hypre -pc_hypre_type boomeramg
+Linear solver converged at step: 10, final residual: 8.26525e-07  Nonlinear convergence: ||delta U|| = 27.23
+--> this is slow, compared with -pc_type jacobi
+

@@ -1,0 +1,22 @@
+// version 1 of the global_control_info
+//part 1) files needed by the implicit
+begin files
+// *** filenames for various purpose
+material.template #// material_info; (including boundary conditions and material models); default: material.template 
+Simple_Tube_part0.xda #// mesh_info; (including boundary conditions and material models); default: exA.xda
+active_info #//active_info; (including the information for the activation model); default: active_info
+dumpInfo_file #//dump_info; newly added info to dump the file
+end files
+// part 2) parameter
+begin parameters
+// *** parameters for various purpose
+0 #//Is_NeedingCheck (print or not some redundent info)
+50 	2000 	10000 #// n_loading_steps, sub_iterations(for reduce relax_factor), total_iterations;
+400 	1.e-9  #//max_solver_iterations; solver_tolerance; // influence the convergence criteria
+1.0e-8	 1.0	 0.5 #// nonlinear_tolerance(Xn -Xn-1 for convergence, has dimension),  relax_factor(1), reduce_ratio(0.5);
+0 1.0e8 #//for(implicit) Is_usingPenaltymethod(false) for Dirichlet number; Dirichlet_Kappa
+1 1.0e2 #// for(implicit) Is_Incompressible; Volume_Kappa(for volumeric modulus)
+0      #// Is_usingPressureTangent
+5	#// restart_file_write_interval
+1  5 #//Is_restart; restart_file_no
+end parameters

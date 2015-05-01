@@ -1,0 +1,25 @@
+// learn restart with bc from adaptivity-ex5;
+In adaptivity-ex5
+Overall steps:
+
+1) declare mesh and associate it with ess (equation systems)
+  SerialMesh mesh(init.comm());
+
+  // Create an equation systems object.
+  EquationSystems equation_systems (mesh);
+  MeshRefinement mesh_refinement (mesh);
+2) read saved_info for mesh and es
+        mesh.read("saved_mesh.xdr");
+
+      // Print information about the mesh to the screen.
+      mesh.print_info();
+
+      // Read in the solution stored in "saved_solution.xda"
+      equation_systems.read("saved_solution.xdr", libMeshEnums::DECODE);
+3) With read e_s, get-system --> get-dof-map --> add bc
+  TransientLinearImplicitSystem & system =
+    equation_systems.get_system<TransientLinearImplicitSystem>
+    ("Convection-Diffusion");
+  dof_map.add_periodic_boundary(vert);
+
+4) equation_systems.reinit ();
