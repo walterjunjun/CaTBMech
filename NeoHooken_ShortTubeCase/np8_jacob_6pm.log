@@ -1,0 +1,221 @@
+**************************************************Begin: deal with control info
+[HEADER_INFO]:begin files
+[HEADER_INFO]:// *** filenames for various purpose
+[HEADER_INFO]:material.template #// material_info; (including boundary conditions and material models); default: material.template 
+[HEADER_INFO]:ShortTube_part0.xda #// mesh_info; (including boundary conditions and material models); default: exA.xda
+[HEADER_INFO]:active_info #//active_info; (including the information for the activation model); default: active_info
+[HEADER_INFO]:dumpInfo_file #//dump_info; newly added info to dump the file
+[HEADER_INFO]:// *** parameters for various purpose
+[HEADER_INFO]:0 #//Is_NeedingCheck (print or not some redundent info)
+[HEADER_INFO]:50 	2000 	10000 #// n_loading_steps, sub_iterations(for reduce relax_factor), total_iterations;
+[HEADER_INFO]:400 	1.e-9  #//max_solver_iterations; solver_tolerance; // influence the convergence criteria
+[HEADER_INFO]:1.0e-8	 1.0	 0.5 #// nonlinear_tolerance(Xn -Xn-1 for convergence, has dimension),  relax_factor(1), reduce_ratio(0.5);
+check before >>1.0e-8	 1.0	 0.5 
+check1e-08,1,0.5
+[HEADER_INFO]:0 1.0e8 #//for(implicit) Is_usingPenaltymethod(false) for Dirichlet number; Dirichlet_Kappa
+[HEADER_INFO]:1 1.0e3 #// for(implicit) Is_Incompressible; Volume_Kappa(for volumeric modulus)
+[HEADER_INFO]:0      #// Is_usingPressureTangent
+[HEADER_INFO]:10	#// restart_file_write_interval
+[HEADER_INFO]:0  10 #//Is_restart; restart_file_no
+[HEADER_INFO]:  success
+**************************************************Begin: check control_info from: global_control_info
+	+++[Check_READ]:material_info, mesh_info, active_info: material.template, ShortTube_part0.xda, active_info
+	+++[Check_READ]:Need check?: false
+	+++[Check_READ]:n_loading_steps, sub_iterations, total_iterations:  50, 2000, 10000
+	+++[Check_READ]:nonlinear_tolerance, relax_factor, reduce_ratio: 1e-08, 1, 0.5
+	+++[Check_READ]:max_solver_iterations, solver_tolerance 400, 1e-09
+	+++[Check_READ]:Include pressure Tangent?: false
+	+++[Check_READ]:Incompressible?: true
+	+++[Check_READ]:Volume_Kappa: 1000
+	+++[Check_READ]:Is Restarting run?: false; restart_file_no: 10
+	+++[Check_READ]:write restart file every step #: = 10
+	+++[Check_READ]:usingPenaltymethod for Dirichlet?: false
+	+++[Check_READ]:: Dirichlet_Kappa1e+08
+**************************************************Begin: deal with boundary info.
+[HEADER_INFO]:begin boundary
+[HEADER_INFO]:// *** boundary info: two integers: bc_location_id; bc_type_id(0: dirichlet; 1:traction; 2:pressure)
+[HEADER_INFO]:1 4 //shape_id(1=tube); NO.BCs(surfaces) (4 for tube);
+[Warning:]only support tube bc
+[HEADER_INFO]:1 0  0.5 1 //top, bot, r_inner, r_outer;
++++ check +++ shape type:tube(1):1; number of surfaces:4; top:1; bottom:0; inner surface:0.5; outer surface:1
+[HEADER_INFO]:0  0  0 3 0 0 0 // bc_location, bc_type, bc_fcn_id, num_bc_paras, bc_para0, bc_para1,...;
+check num_paras3
++++ check info-0: at top is dirichlet with: fcn_id =0--------with parameters:0; 0; 0; 
+[HEADER_INFO]:1  0  0	3 0 0 0 // fa=f2=f3=0;
+check num_paras3
++++ check info-1: at bottom is dirichlet with: fcn_id =0--------with parameters:0; 0; 0; 
+[HEADER_INFO]:2  2  20 3 1.5 0 0 //p0 zmin zmax// pressure:
+check num_paras3
++++ check info-2: at inner surface is pressure with: fcn_id =20--------with parameters:1.5; 0; 0; 
+[HEADER_INFO]:3  1  10 3 0 0 0  //f1 f2 f3 //
+check num_paras3
++++ check info-3: at outer surface is traction with: fcn_id =10--------with parameters:0; 0; 0; 
+[HEADER_INFO]:  success
+++++++++++++++ After update: boundary info: +++++++++++++++++++++++ 
+
+Side Boundary conditions:
+-------------------------
+  (ID, number of sides)   
+  (0, 500)
+  (10, 500)
+  (22, 2000)
+  (31, 2000)
+**************************************************Begin: deal with material info
+[HEADER_INFO]:begin material
+[HEADER_INFO]:// *** material information: 2 domains(materials)
+[HEADER_INFO]:2  4 // number of domains=2; No. material parameter info
+	+++[Check_READ]:num. of subdomains:2; num. of material parameters: 4
+[HEADER_INFO]:0  0 9999/ subdomain info: subdomain_id; elem.beg_id; elem.end_id
+	+++[Check_READ]:subdomain_info:0; element_begin:0; element_end:9999
+[HEADER_INFO]:1  1  // fcn_id info: fcn_kee; fcx_stress;
+	+++[Check_READ]:fcx_Kee:1; fcx_stress1
+[HEADER_INFO]:1 0 1 1 //material para info: C1, alpha1, C2, alpha2
+	+++[Check_READ]:1; 0; 1; 1; 
+[HEADER_INFO]:1 10000 20000/ subdomain info: subdomain_id; elem.beg; elem.end
+	+++[Check_READ]:subdomain_info:1; element_begin:10000; element_end:20000
+[HEADER_INFO]:1  1  // fcn_id info: fcn_kee; fcx_stress;
+	+++[Check_READ]:fcx_Kee:1; fcx_stress1
+[HEADER_INFO]:1 0 1 1 //material para info: C1, alpha1, C2, alpha2
+	+++[Check_READ]:1; 0; 1; 1; 
+**************************************************
+[HEADER_INFO]:begin fiber
+[HEADER_INFO]:// *** fiber information: we only consider 2 family fibers: see natali paper
+	+++[Check_READ]:have fiber?:1;by file info?:0
+[HEADER_INFO]:read fiber groups + paras: 2 5 // number of fiber types; parameter for each type; // we must group_num = subdomain_num
+	!+++ not use fiber_file, continue reading parameters
+	!+++ currently, fiber info goups = num. of subdomains 
+	!+++ num. of fiber types(families): 2 num. para per type:5
+	+++[Check_READ]:domain-0;2 families, with 10 paras:0; 1; 0; 0; 0; 0; 0; 1; 0; 0; 
+	+++[Check_READ]:domain-1;2 families, with 10 paras:0; 1; 0; 0; 0; 0; 0; 1; 0; 0; 
+**************************************************
+[HEADER_INFO]:begin other
+[HEADER_INFO]:// *** other information for the internal variables (embeded in the element), needs file
+	!+++have no other info!
+[HEADER_INFO]:  success
+ begin to update subdomain
+finish updating subdomain
++++++++++++++++ !!! non-restart run !!!!!!!! +++++++++++++++++
+++++++++++++++ After register: material info systems: +++++++++++++++++++++++ 
++++++++++++++++ !!! not using penalty dirichlet bc !!!!!!!! +++++++++++++++++
+0
+1
+2
+0
+1
+2
+total_variables:3
+[BEGIN]:	store material info
+	!+++use parameters based on tube geometry only; orientation based on the element center
+[END]:	 SUCCESS:store material info
+[BEGIN]:	store stress info
+[END]:	 SUCCESS:store stress info
+**************************************************Begin: deal with active_info: active_info
+[!WARN]:	[active_info]can not find active_info
++++++++++++++++++++++++++++++++++++++++++ active or passive ? ++++++++
+passive
++++++++++++++++++++++++++++++++++++++++++ active or passive ! ++++++++
+
+
+*** Solving time/loading step 0, time/current_step = 0 ***
+begin solve: iteration #0
+assemble: loading fraction: =0
++++++++++, use default_quadrature_order: 3
+*** Warning, This code is deprecated, and likely to be removed in future library versions! src/mesh/boundary_info.C, line 1038, compiled May 23 2014 at 18:38:02 ***
+Linear solve did not converge due to DIVERGED_ITS iterations 400
+Linear solver converged at step: 0, final residual: 1.24218e-19  Nonlinear convergence: ||delta U|| = 3.12044e-16
+ Nonlinear solver converged at step 0
+** Finish step #:0; begin update displacement
+** Finish step #0; begin update stress
+begin update stress sytem: loading fraction: =0
+
+
+*** Solving time/loading step 1, time/current_step = 0.02 ***
+begin solve: iteration #0
+assemble: loading fraction: =0.02
++++++++++, use default_quadrature_order: 3
+Linear solve did not converge due to DIVERGED_ITS iterations 400
+Linear solver converged at step: 0, final residual: 6.69234e-07  Nonlinear convergence: ||delta U|| = 0.00478154
+begin solve: iteration #1
+assemble: loading fraction: =0.02
++++++++++, use default_quadrature_order: 3
+Linear solve did not converge due to DIVERGED_ITS iterations 400
+Linear solver converged at step: 1, final residual: 4.42376e-07  Nonlinear convergence: ||delta U|| = 0.000950901
+begin solve: iteration #2
+assemble: loading fraction: =0.02
++++++++++, use default_quadrature_order: 3
+Linear solve did not converge due to DIVERGED_ITS iterations 400
+Linear solver converged at step: 2, final residual: 1.80336e-07  Nonlinear convergence: ||delta U|| = 0.00020938
+begin solve: iteration #3
+assemble: loading fraction: =0.02
++++++++++, use default_quadrature_order: 3
+Linear solve did not converge due to DIVERGED_ITS iterations 400
+Linear solver converged at step: 3, final residual: 2.13916e-08  Nonlinear convergence: ||delta U|| = 8.67341e-05
+begin solve: iteration #4
+assemble: loading fraction: =0.02
++++++++++, use default_quadrature_order: 3
+Linear solve did not converge due to DIVERGED_ITS iterations 400
+Linear solver converged at step: 4, final residual: 7.93016e-09  Nonlinear convergence: ||delta U|| = 7.11224e-05
+begin solve: iteration #5
+assemble: loading fraction: =0.02
++++++++++, use default_quadrature_order: 3
+Linear solve did not converge due to DIVERGED_ITS iterations 400
+Linear solver converged at step: 5, final residual: 5.33507e-09  Nonlinear convergence: ||delta U|| = 5.97928e-05
+begin solve: iteration #6
+assemble: loading fraction: =0.02
++++++++++, use default_quadrature_order: 3
+Linear solve did not converge due to DIVERGED_ITS iterations 400
+Linear solver converged at step: 6, final residual: 4.32199e-09  Nonlinear convergence: ||delta U|| = 5.08364e-05
+begin solve: iteration #7
+assemble: loading fraction: =0.02
++++++++++, use default_quadrature_order: 3
+Linear solve did not converge due to DIVERGED_ITS iterations 400
+Linear solver converged at step: 7, final residual: 3.43844e-09  Nonlinear convergence: ||delta U|| = 4.3622e-05
+begin solve: iteration #8
+assemble: loading fraction: =0.02
++++++++++, use default_quadrature_order: 3
+Linear solve did not converge due to DIVERGED_ITS iterations 400
+Linear solver converged at step: 8, final residual: 2.80583e-09  Nonlinear convergence: ||delta U|| = 3.79583e-05
+begin solve: iteration #9
+assemble: loading fraction: =0.02
++++++++++, use default_quadrature_order: 3
+Linear solve did not converge due to DIVERGED_ITS iterations 400
+Linear solver converged at step: 9, final residual: 2.25406e-09  Nonlinear convergence: ||delta U|| = 3.32315e-05
+begin solve: iteration #10
+assemble: loading fraction: =0.02
++++++++++, use default_quadrature_order: 3
+Linear solve did not converge due to DIVERGED_ITS iterations 400
+Linear solver converged at step: 10, final residual: 1.87464e-09  Nonlinear convergence: ||delta U|| = 2.92511e-05
+begin solve: iteration #11
+assemble: loading fraction: =0.02
++++++++++, use default_quadrature_order: 3
+Linear solve did not converge due to DIVERGED_ITS iterations 400
+Linear solver converged at step: 11, final residual: 1.50614e-09  Nonlinear convergence: ||delta U|| = 2.60551e-05
+begin solve: iteration #12
+assemble: loading fraction: =0.02
++++++++++, use default_quadrature_order: 3
+Linear solve did not converge due to DIVERGED_ITS iterations 400
+Linear solver converged at step: 12, final residual: 1.26303e-09  Nonlinear convergence: ||delta U|| = 2.33427e-05
+begin solve: iteration #13
+assemble: loading fraction: =0.02
++++++++++, use default_quadrature_order: 3
+Linear solve did not converge due to DIVERGED_ITS iterations 400
+Linear solver converged at step: 13, final residual: 1.04828e-09  Nonlinear convergence: ||delta U|| = 2.09931e-05
+begin solve: iteration #14
+assemble: loading fraction: =0.02
++++++++++, use default_quadrature_order: 3
+Linear solve did not converge due to DIVERGED_ITS iterations 400
+Linear solver converged at step: 14, final residual: 8.70033e-10  Nonlinear convergence: ||delta U|| = 1.89458e-05
+begin solve: iteration #15
+assemble: loading fraction: =0.02
++++++++++, use default_quadrature_order: 3
+Linear solve did not converge due to DIVERGED_ITS iterations 400
+Linear solver converged at step: 15, final residual: 7.63179e-10  Nonlinear convergence: ||delta U|| = 1.72492e-05
+begin solve: iteration #16
+assemble: loading fraction: =0.02
++++++++++, use default_quadrature_order: 3
+Linear solve did not converge due to DIVERGED_ITS iterations 400
+Linear solver converged at step: 16, final residual: 6.45117e-10  Nonlinear convergence: ||delta U|| = 1.57976e-05
+begin solve: iteration #17
+assemble: loading fraction: =0.02
++++++++++, use default_quadrature_order: 3
+6 total processes killed (some possibly by mpiexec during cleanup)
